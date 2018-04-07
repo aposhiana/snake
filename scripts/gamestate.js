@@ -8,9 +8,10 @@ MyGame.gameState = (function() {
         state: 'gameplay',
         newGame: true,
         score: 0,
-        growths: 0,
-        food: null
+        growths: 0
     };
+
+    let food = {x: null, y: null};
 
     function Queue() {
         // Taken from Dr. Mathias's Queue code
@@ -50,17 +51,43 @@ MyGame.gameState = (function() {
         for (let i = 0; i < GRID_MAX; i++) {
             obstacleMap.push([]);
             for (let j = 0; j < GRID_MAX; j++) {
-                obstacleMap[i].push(false);
+                obstacleMap[i].push('empty');
             }
         }
         let obstacles_added = 0;
         while (obstacles_added < OBSTACLE_COUNT) {
-            let randX = getRandomIntInclusive(1, 49);
-            let randY = getRandomIntInclusive(1, 49);
-            if (!obstacleMap[randX][randY]) {
-                obstacleMap[randX][randY] = true;
+            let randX = getRandomIntInclusive(1, 48);
+            let randY = getRandomIntInclusive(1, 48);
+            if (obstacleMap[randX][randY] === 'empty') {
+                obstacleMap[randX][randY] = 'block';
                 obstacles.push({x: randX, y: randY});
                 obstacles_added++;
+            }
+        }
+    }
+
+    function initSnake() {
+        let goodPos = false;
+        while (!goodPos) {
+            let randX = getRandomIntInclusive(1, 49);
+            let randY = getRandomIntInclusive(1, 49);
+            if (obstacleMap[randX][randY] === 'empty') {
+                goodPos = true;
+                snake.enqueue({x: randX, y: randY});
+                obstacleMap[randX][randY] = 'snake';
+            }
+        }
+    }
+
+    function generateFood() {
+        let done = false;
+        while (!done) {
+            let randX = getRandomIntInclusive(1, 49);
+            let randY = getRandomIntInclusive(1, 49);
+            if (obstacleMap[randX][randY] === 'empty') {
+                done = true;
+                food.x = randX;
+                food.y = randY;
             }
         }
     }
@@ -89,13 +116,13 @@ MyGame.gameState = (function() {
             case 'up':
                 snake.enqueue({
                     x: snake.front.x,
-                    y: snake.front.y + 1
+                    y: snake.front.y - 1
                 });
                 break;
             case 'down':
                 snake.enqueue({
                     x: snake.front.x,
-                    y: snake.front.y - 1
+                    y: snake.front.y + 1
                 });
                 break;
         }
@@ -104,7 +131,8 @@ MyGame.gameState = (function() {
             props.growths--;
         }
         else {
-            snake.dequeue();
+            let lastPos = snake.dequeue();
+            obstacleMap[lastPos.x][lastPos.y] = 'empty';
         }
     }
 
@@ -144,7 +172,11 @@ MyGame.gameState = (function() {
         getNewGameProperty,
         getScore,
         initObstacles,
+        initSnake,
+        moveSnake,
         obstacles,
-        snake
+        snake,
+        food,
+        generateFood
     };
 }());

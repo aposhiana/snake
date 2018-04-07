@@ -57,8 +57,18 @@ MyGame.renderer = (function(gameState) {
         }
 
         // Draw food
+        if (gameState.food.x !== null) {
+            let foodX = gameState.food.x;
+            let foodY = gameState.food.y;
+            drawBlock(foodX, foodY, FOOD_COLOR, context);
+        }
 
         // Draw snake
+        for (let i = 0; i < gameState.snake.length; i++) {
+            let snakeY = gameState.snake[i].y;
+            let snakeX = gameState.snake[i].x;
+            drawBlock(snakeX, snakeY, SNAKE_COLOR, context);
+        }
 
         // Render GAME OVER if in gameover
         if (gameState.getState() === 'gameover') {

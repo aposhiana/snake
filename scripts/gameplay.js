@@ -4,7 +4,7 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
     const MOVE_INTERVAL = 150;
 
     let props = {
-        lastTimeStamp: null,
+        lastTimeStamp: performance.now(),
         cancelNextRequest: false,
         canvas: null,
         context: null,
@@ -52,12 +52,14 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
         // Set up new game
         gameState.wipeGameState();
         gameState.initObstacles();
+        gameState.initSnake(); // must come after obstacles
+        gameState.generateFood();
 
         // Set or reset newGame flag to false
         gameState.setNewGameProperty(false);
         
         // Start game loop
-        props.lastTimeStamp = performance.now();
+        // props.lastTimeStamp = performance.now();
         requestAnimationFrame(gameLoop);
     }
 
@@ -119,7 +121,8 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
 
     function gamePlayUpdate(elapsedTime) {
 
-        props.accumulatingSecond += elapsedTime;
+        props.accumulatingMoveInterval += elapsedTime;
+        console.log(props.accumulatingMoveInterval);
 
         if (props.accumulatingMoveInterval >= MOVE_INTERVAL) {
             gameState.moveSnake(stateChanges.moveDirection);
