@@ -3,14 +3,14 @@ MyGame.renderer = (function(gameState) {
 
     const B_LEN = 20;
     const OBSTACLE_COLOR = '#7FFF00';
-    const FOOD_COLOR = 'orange';
+    const FOOD_COLOR = '#FF8C00';
     const SNAKE_COLOR = 'white';
 
     function drawBlock(x, y, color, context) {
         let startX = x * B_LEN;
         let startY = y * B_LEN;
         context.beginPath();
-        context.strokeStyle = color;
+        context.strokeStyle = '#1e1e1e';
         context.lineWidth = 1;
         context.moveTo(startX, startY);
         context.lineTo(startX + B_LEN, startY);
@@ -27,16 +27,15 @@ MyGame.renderer = (function(gameState) {
 
         // Draw background
         context.beginPath();
-        context.strokeStyle = 'blue';
+        context.strokeStyle = '#4169E1';
         context.lineWidth = 1;
         context.moveTo(0, 0);
         context.lineTo(1000, 0);
         context.lineTo(1000, 1000);
         context.lineTo(0, 1000);
         context.closePath();
-        context.fillStyle = 'blue';
+        context.fillStyle = '#4169E1';
         context.fill();
-        context.stroke();
 
         // Draw outer walls
         context.beginPath();
@@ -68,6 +67,23 @@ MyGame.renderer = (function(gameState) {
             let snakeY = gameState.snake[i].y;
             let snakeX = gameState.snake[i].x;
             drawBlock(snakeX, snakeY, SNAKE_COLOR, context);
+        }
+        context.stroke();
+
+         // Render score
+         context.font = '18px sans-serif';
+         context.fillStyle = '#7FFF00';
+         context.fillText('SCORE: ' + gameState.getScore(), 880, 995);
+
+        // Render countdown if in countdown
+        if (gameState.getState() === 'countdown') {
+            let countValue = gameState.getCountdown();
+            if (countValue > 0) {
+                context.font = '200px sans-serif';
+                context.fillStyle = 'black';
+                let halfTextWidth = context.measureText(countValue).width / 2;
+                context.fillText(countValue, 500 - halfTextWidth, 560);
+            }  
         }
 
         // Render GAME OVER if in gameover

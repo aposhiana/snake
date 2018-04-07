@@ -1,15 +1,17 @@
 MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
     'use strict';
 
-    const MOVE_INTERVAL = 150;
+    const MOVE_INTERVAL = 140;
+    const GRID_MAX = 49;
 
     let props = {
         lastTimeStamp: performance.now(),
         cancelNextRequest: false,
         canvas: null,
         context: null,
-        update: gamePlayUpdate,
+        update: countdownUpdate,
         accumulatingMoveInterval: 0,
+        accumulatingSecond: 0
     };
 
     let keyboard = input.Keyboard();
@@ -47,7 +49,7 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
     function startNewGame() {
         props.cancelNextRequest = false;
 
-        props.update = gamePlayUpdate;
+        props.update = countdownUpdate;
         
         // Set up new game
         gameState.wipeGameState();
@@ -119,33 +121,86 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
         stateChanges.moveDirection = null;
     }
 
+    function countdownUpdate(elapsedTime) {
+        props.accumulatingSecond += elapsedTime;
+
+        // Undo any state changes - this is hacky
+        stateChanges.moveDirection = null;
+
+        if (gameState.getCountdown() <= 0) {
+            props.update = gamePlayUpdate;
+            gameState.setState('gameplay');
+        }
+        else if (props.accumulatingSecond >= 1000) {
+            gameState.countdown();
+            props.accumulatingSecond = 0;
+        }
+    }
+
     function handleCollisions() {
         let head = gameState.snake.back;
-        let fState = gameState.obstacleMap[head.x][head.y];
+        let fState = null;
 
-        if (fState === 'food') {
+        let outOfBoard = false;
+        if ((head.x > (GRID_MAX - 1)) || (head.x < 1) || (head.y > (GRID_MAX - 1)) || (head.y < 1)) {
+            outOfBoard = true;
+        }
+        else {
+            fState = gameState.obstacleMap[head.x][head.y];
+        }
+
+        if (outOfBoard || (fState === 'block') || (fState === 'snake')) {
+            props.update = gameOverUpdate;
+            gameState.setState('gameover');
+            updateHighScores(gameState.getScore());
+        }
+        else if (fState === 'food') {
             gameState.addGrowths();
             gameState.obstacleMap[head.x][head.y] = 'snake';
             gameState.generateFood();
         }
-        else if (fState === 'block') {
-            props.update = gameOverUpdate;
-            gameState.setState('gameover');
-            updateHighScores(gameState.getScore());
+        else {
+            gameState.obstacleMap[head.x][head.y] = 'snake';
         }
     }
 
     function gamePlayUpdate(elapsedTime) {
 
         props.accumulatingMoveInterval += elapsedTime;
-        console.log(props.accumulatingMoveInterval);
 
-        if (props.accumulatingMoveInterval >= MOVE_INTERVAL) {
-            gameState.moveSnake(stateChanges.moveDirection);
+        if ((props.accumulatingMoveInterval >= MOVE_INTERVAL) && (stateChanges.moveDirection !== null)) {
+            let validMove = true;
+            switch (gameState.snake.prevDirection) {
+                case 'right':
+                    if (stateChanges.moveDirection === 'left') {
+                        validMove = false;
+                    }
+                    break;
+                case 'left':
+                    if (stateChanges.moveDirection === 'right') {
+                        validMove = false;
+                    }
+                    break;
+                case 'up':
+                    if (stateChanges.moveDirection === 'down') {
+                        validMove = false;
+                    }
+                    break;
+                case 'down':
+                    if (stateChanges.moveDirection === 'up') {
+                        validMove = false;
+                    }
+                    break;
+            }
+            if (validMove) {
+                gameState.moveSnake(stateChanges.moveDirection);
+            }
+            else {
+                gameState.moveSnake(gameState.snake.prevDirection);
+            }
             props.accumulatingMoveInterval = 0;
+            handleCollisions();
         }
-        
-        handleCollisions();
     }
 
     function render(elapsedTime) {
