@@ -1,78 +1,5 @@
 let Input = (function() {
 	'use strict';
-	
-	//
-    // This Mouse constructor function was originally written by Dr. Dean Mathias;
-    // it has been slightly modified by Andrew Aposhian.
-	function Mouse() {
-		let that = {
-				mouseDown : [],
-				mouseUp : [],
-				mouseMove : [],
-				handlersDown : [],
-				handlersUp : [],
-				handlersMove : []
-			};
-		
-		function mouseDown(e) {
-			that.mouseDown.push(e);
-		}
-		
-		function mouseUp(e) {
-			that.mouseUp.push(e);
-		}
-		
-		function mouseMove(e) {
-			that.mouseMove.push(e);
-		}
-		
-		that.update = function(elapsedTime) {
-
-			//
-			// Process the mouse events for each of the different kinds of handlers
-			for (let i = 0; i < that.mouseDown.length; i++) {
-				for (let j = 0; j < that.handlersDown.length; j++) {
-					that.handlersDown[j](that.mouseDown[i], elapsedTime);
-				}
-			}
-			
-			for (let i = 0; i < that.mouseUp.length; i++) {
-				for (let j = 0; j < that.handlersUp.length; j++) {
-					that.handlersUp[j](that.mouseUp[i], elapsedTime);
-				}
-			}
-			
-			for (let i = 0; i < that.mouseMove.length; i++) {
-				for (let j = 0; j < that.handlersMove.length; j++) {
-					that.handlersMove[j](that.mouseMove[i], elapsedTime);
-				}
-			}
-			
-			//
-			// Now that we have processed all the inputs, reset everything back to the empty state
-			that.mouseDown.length = 0;
-			that.mouseUp.length = 0;
-			that.mouseMove.length = 0;
-		};
-		
-		that.registerCommand = function(type, handler) {
-			if (type === 'mousedown') {
-				that.handlersDown.push(handler);
-			}
-			else if (type === 'mouseup') {
-				that.handlersUp.push(handler);
-			}
-			else if (type === 'mousemove') {
-				that.handlersMove.push(handler);
-			}
-		};
-		
-		window.addEventListener('mousedown', mouseDown);
-		window.addEventListener('mouseup', mouseUp);
-		window.addEventListener('mousemove', mouseMove);
-		
-		return that;
-	}
     
     //
     // This Keyboard constructor function was originally written by Dr. Dean Mathias;
@@ -282,8 +209,7 @@ let Input = (function() {
     
     return {
         keyCodes,
-		Keyboard,
-		Mouse
+		Keyboard
     };
 }());
 

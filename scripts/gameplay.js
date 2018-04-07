@@ -1,20 +1,22 @@
 MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
     'use strict';
 
+    const MOVE_INTERVAL = 150;
+
     let props = {
         lastTimeStamp: null,
         cancelNextRequest: false,
         canvas: null,
         context: null,
-        update: countdownUpdate,
-        accumulatingSecond: 0,
+        update: gamePlayUpdate,
+        accumulatingMoveInterval: 0,
     };
 
     let keyboard = input.Keyboard();
     let mouse = input.Mouse();
 
     let stateChanges = {
-        paddleX: 0
+        moveDirection: null
     };
 
     function updateHighScores(myScore) {
@@ -46,7 +48,7 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
     function startNewGame() {
         props.cancelNextRequest = false;
 
-        props.update = countdownUpdate;
+        props.update = gamePlayUpdate;
         
         // Set up new game
         gameState.wipeGameState();
@@ -71,8 +73,6 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
     function initialize() {
         console.log('game initializing...');
 
-        // possible image initialization here
-
         props.canvas = document.getElementById('canvas-main');
         props.context = props.canvas.getContext('2d');
 
@@ -83,6 +83,7 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
             this.restore();
         };
 
+        // Register commands here
         keyboard.registerCommand(input.keyCodes.DOM_VK_ESCAPE, function() {
             props.cancelNextRequest = true;
             if (gameState.getState() === 'gameover') {
@@ -94,52 +95,37 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
             }
         });
 
-        // Register any other commands here
-        // keyboard.registerCommand(input.keyCodes.DOM_VK_RIGHT, function(elapsedTime) {
-        //     stateChanges.paddleX += elapsedTime;
-        // });
-        // keyboard.registerCommand(input.keyCodes.DOM_VK_LEFT, function(elapsedTime) {
-        //     stateChanges.paddleX -= elapsedTime;
-        // });
+        keyboard.registerCommand(input.keyCodes.DOM_VK_RIGHT, function(elapsedTime) {
+            stateChanges.moveDirection = 'right';
+        });
+        keyboard.registerCommand(input.keyCodes.DOM_VK_LEFT, function(elapsedTime) {
+            stateChanges.moveDirection = 'left';
+        });
+        keyboard.registerCommand(input.keyCodes.DOM_VK_UP, function(elapsedTime) {
+            stateChanges.moveDirection = 'up';
+        });
+        keyboard.registerCommand(input.keyCodes.DOM_VK_DOWN, function(elapsedTime) {
+            stateChanges.moveDirection = 'down';
+        });
     }
 
     function processInput(elapsedTime) {
         keyboard.handleEvents(elapsedTime);
     }
 
-    function countdownUpdate(elapsedTime) {
-        props.accumulatingSecond += elapsedTime;
-
-        if (gameState.getCountdown() <= 0) {
-            props.update = gamePlayUpdate;
-            gameState.setState('gameplay');
-            // Trigger any necessary behaviors for end of countdown
-            // for (let i = 0; i < gameState.balls.length; i++) {
-            //     gameState.balls[i].serve();
-            // }
-        }
-        else if (props.accumulatingSecond >= 1000) {
-            gameState.countdown();
-            console.log(gameState.getCountdown());
-            props.accumulatingSecond = 0;
-        }
-    }
-
     function gameOverUpdate(elapsedTime) {
         // Undo any state changes - this is hacky
-        // stateChanges.paddleX = 0;
-    }
-
-    function updatePositions(elapsedTime) {
-
-    }
-
-    function shrinkPaddle() {
-
+        stateChanges.moveDirection = null;
     }
 
     function gamePlayUpdate(elapsedTime) {
-        updatePositions(elapsedTime);
+
+        props.accumulatingSecond += elapsedTime;
+
+        if (props.accumulatingMoveInterval >= MOVE_INTERVAL) {
+            gameState.moveSnake(stateChanges.moveDirection);
+            props.accumulatingMoveInterval = 0;
+        }
         
         // Any collision handling here
 

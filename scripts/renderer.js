@@ -1,43 +1,26 @@
 MyGame.renderer = (function(gameState) {
     'use strict';
 
-    // Hard coded strings to sources of images - initialize changes these to actual images
-    // let images = {
-    //     backgroundImg: 'images/mountain-clouds.jpg'
-    // };
+    const B_LEN = 20;
 
     function render(context, elapsedTime) {
         context.clear();
 
-        // if (images.backgroundImg.isReady) {
-	    // 	context.drawImage(images.backgroundImg, 0, 0, 1000, 1000);
-        // }
-
         // Draw outer walls
         context.beginPath();
         context.strokeStyle = '#1e1e1e';
-        context.lineWidth = 10;
-        context.moveTo(5, 1000);
-        context.lineTo(5, 5);
-        context.lineTo(995, 5);
-        context.lineTo(995, 1000);
+        context.lineWidth = 20;
+        context.moveTo(10, 990);
+        context.lineTo(10, 10);
+        context.lineTo(990, 10);
+        context.lineTo(990, 990);
+        context.closePath();
         context.stroke();
 
         // Render score
         context.font = '20px sans-serif';
         context.fillStyle = '#ccff15';
         context.fillText('Score: ' + gameState.getScore(), 880, 985);
-
-        // Render countdown if in countdown
-        if (gameState.getState() === 'countdown') {
-            let countValue = gameState.getCountdown();
-            if (countValue > 0) {
-                context.font = '200px sans-serif';
-                context.fillStyle = 'black';
-                let halfTextWidth = context.measureText(countValue).width / 2;
-                context.fillText(countValue, 500 - halfTextWidth, 560);
-            }  
-        }
 
         // Render GAME OVER if in gameover
         if (gameState.getState() === 'gameover') {
@@ -59,7 +42,6 @@ MyGame.renderer = (function(gameState) {
     }
 
     return {
-        render,
-        // images
+        render
     };
 }(MyGame.gameState));
