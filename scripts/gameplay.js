@@ -119,6 +119,22 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
         stateChanges.moveDirection = null;
     }
 
+    function handleCollisions() {
+        let head = gameState.snake.back;
+        let fState = gameState.obstacleMap[head.x][head.y];
+
+        if (fState === 'food') {
+            gameState.addGrowths();
+            gameState.obstacleMap[head.x][head.y] = 'snake';
+            gameState.generateFood();
+        }
+        else if (fState === 'block') {
+            props.update = gameOverUpdate;
+            gameState.setState('gameover');
+            updateHighScores(gameState.getScore());
+        }
+    }
+
     function gamePlayUpdate(elapsedTime) {
 
         props.accumulatingMoveInterval += elapsedTime;
@@ -129,13 +145,7 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
             props.accumulatingMoveInterval = 0;
         }
         
-        // Any collision handling here
-
-        // State change on certain conditions
-
-        // If setting the gameOverUpdate remember to also do the following
-        // gameState.setState('gameover');
-        // updateHighScores(gameState.getScore());
+        handleCollisions();
     }
 
     function render(elapsedTime) {

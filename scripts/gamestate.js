@@ -24,6 +24,10 @@ MyGame.gameState = (function() {
             return that.shift();
         }
 
+        Object.defineProperty(that, 'back', {
+            get: () => that[that.length - 1]
+        });
+
         Object.defineProperty(that, 'front', {
             get: () => that[0]
         });
@@ -88,6 +92,7 @@ MyGame.gameState = (function() {
                 done = true;
                 food.x = randX;
                 food.y = randY;
+                obstacleMap[randX][randY] = 'food';
             }
         }
     }
@@ -103,26 +108,26 @@ MyGame.gameState = (function() {
         switch (direction) {
             case 'right':
                 snake.enqueue({
-                    x: snake.front.x + 1,
-                    y: snake.front.y
+                    x: snake.back.x + 1,
+                    y: snake.back.y
                 });
                 break;
             case 'left':
                 snake.enqueue({
-                    x: snake.front.x - 1,
-                    y: snake.front.y
+                    x: snake.back.x - 1,
+                    y: snake.back.y
                 });
                 break;
             case 'up':
                 snake.enqueue({
-                    x: snake.front.x,
-                    y: snake.front.y - 1
+                    x: snake.back.x,
+                    y: snake.back.y - 1
                 });
                 break;
             case 'down':
                 snake.enqueue({
-                    x: snake.front.x,
-                    y: snake.front.y + 1
+                    x: snake.back.x,
+                    y: snake.back.y + 1
                 });
                 break;
         }
@@ -170,6 +175,7 @@ MyGame.gameState = (function() {
         wipeGameState,
         setNewGameProperty,
         getNewGameProperty,
+        addGrowths,
         getScore,
         initObstacles,
         initSnake,
@@ -177,6 +183,7 @@ MyGame.gameState = (function() {
         obstacles,
         snake,
         food,
-        generateFood
+        generateFood,
+        obstacleMap
     };
 }());
