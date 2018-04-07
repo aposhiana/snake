@@ -2,9 +2,41 @@ MyGame.renderer = (function(gameState) {
     'use strict';
 
     const B_LEN = 20;
+    const OBSTACLE_COLOR = '#7FFF00';
+    const FOOD_COLOR = 'orange';
+    const SNAKE_COLOR = 'white';
+
+    function drawBlock(x, y, color, context) {
+        let startX = x * B_LEN;
+        let startY = y * B_LEN;
+        context.beginPath();
+        context.strokeStyle = color;
+        context.lineWidth = 1;
+        context.moveTo(startX, startY);
+        context.lineTo(startX + B_LEN, startY);
+        context.lineTo(startX + B_LEN, startY + B_LEN);
+        context.lineTo(startX, startY + B_LEN);
+        context.closePath();
+        context.fillStyle = color;
+        context.fill();
+        context.stroke();
+    }
 
     function render(context, elapsedTime) {
         context.clear();
+
+        // Draw background
+        context.beginPath();
+        context.strokeStyle = 'blue';
+        context.lineWidth = 1;
+        context.moveTo(0, 0);
+        context.lineTo(1000, 0);
+        context.lineTo(1000, 1000);
+        context.lineTo(0, 1000);
+        context.closePath();
+        context.fillStyle = 'blue';
+        context.fill();
+        context.stroke();
 
         // Draw outer walls
         context.beginPath();
@@ -17,10 +49,16 @@ MyGame.renderer = (function(gameState) {
         context.closePath();
         context.stroke();
 
-        // Render score
-        context.font = '20px sans-serif';
-        context.fillStyle = '#ccff15';
-        context.fillText('Score: ' + gameState.getScore(), 880, 985);
+        // Draw obstacles
+        for (let i = 0; i < gameState.obstacles.length; i++) {
+            let obY = gameState.obstacles[i].y;
+            let obX = gameState.obstacles[i].x;
+            drawBlock(obX, obY, OBSTACLE_COLOR, context);
+        }
+
+        // Draw food
+
+        // Draw snake
 
         // Render GAME OVER if in gameover
         if (gameState.getState() === 'gameover') {

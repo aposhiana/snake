@@ -1,11 +1,15 @@
 MyGame.gameState = (function() {
     'use strict';
 
+    let GRID_MAX = 50;
+    let OBSTACLE_COUNT = 15;
+
     let props = {
         state: 'gameplay',
         newGame: true,
         score: 0,
-        growths: 0
+        growths: 0,
+        food: null
     };
 
     function Queue() {
@@ -30,9 +34,36 @@ MyGame.gameState = (function() {
         return that;
     }
 
-    // Will be 2d
+    let obstacleMap = []; // Will be 2d
+
     let obstacles = [];
     let snake = Queue();
+
+    // Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+    function getRandomIntInclusive(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
+      }
+
+    function initObstacles() {
+        for (let i = 0; i < GRID_MAX; i++) {
+            obstacleMap.push([]);
+            for (let j = 0; j < GRID_MAX; j++) {
+                obstacleMap[i].push(false);
+            }
+        }
+        let obstacles_added = 0;
+        while (obstacles_added < OBSTACLE_COUNT) {
+            let randX = getRandomIntInclusive(1, 49);
+            let randY = getRandomIntInclusive(1, 49);
+            if (!obstacleMap[randX][randY]) {
+                obstacleMap[randX][randY] = true;
+                obstacles.push({x: randX, y: randY});
+                obstacles_added++;
+            }
+        }
+    }
 
     function addGrowths() {
         props.growths += 3;
@@ -67,6 +98,8 @@ MyGame.gameState = (function() {
                     y: snake.front.y - 1
                 });
                 break;
+        }
+
         if (props.growths > 0) {
             props.growths--;
         }
@@ -109,6 +142,9 @@ MyGame.gameState = (function() {
         wipeGameState,
         setNewGameProperty,
         getNewGameProperty,
-        getScore
+        getScore,
+        initObstacles,
+        obstacles,
+        snake
     };
 }());

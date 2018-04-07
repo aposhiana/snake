@@ -13,7 +13,6 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
     };
 
     let keyboard = input.Keyboard();
-    let mouse = input.Mouse();
 
     let stateChanges = {
         moveDirection: null
@@ -52,7 +51,7 @@ MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
         
         // Set up new game
         gameState.wipeGameState();
-        // call any init methods on gameState
+        gameState.initObstacles();
 
         // Set or reset newGame flag to false
         gameState.setNewGameProperty(false);
