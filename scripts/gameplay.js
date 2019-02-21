@@ -1,7 +1,7 @@
 MyGame.screens['game-play'] = (function(game, input, gameState, renderer) {
     'use strict';
 
-    const MOVE_INTERVAL = 140;
+    const MOVE_INTERVAL = 100;
     const GRID_MAX = 49;
 
     let props = {
